@@ -3,12 +3,13 @@ function init() {
 }
 
 // DRAW FUNCTIONS
-player.locX = Math.floor(500*Math.random() + 100); 
-player.locY = Math.floor(500*Math.random() + 100); 
+player.locX = Math.floor((500*Math.random()) + 100); 
+player.locY = Math.floor((500*Math.random()) + 100); 
 
 function draw() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
     context.setTransform(1,0,0,1,0,0);
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
     const camX = -player.locX + canvas.width / 2
     const camY = -player.locY + canvas.height / 2
@@ -16,16 +17,18 @@ function draw() {
 
         context.beginPath()
         context.fillStyle = 'rgb(255,230,230)'
-        // arg1,2 = x,y of the center of the arc
-        // arg3 = radius
-        // arg4 = where to start on the circle in radians, 0 = 3:00
-        // arg5 = where to stop in radians
         context.arc(player.locX,player.locY,10,0,Math.PI*2)
-        context.arc(200,200,10,0,Math.PI*2)
         context.fill()
         context.lineWidth = 3;
         context.strokeStyle = 'rgb(0,255,0)'
-        context.stroke()  
+        context.stroke() 
+
+    orbs.forEach((orb) => {
+        context.beginPath();
+        context.fillStyle = orb.colour;
+        context.arc(orb.locX, orb.locY, orb.radius, 0, Math.PI * 2)
+        context.fill();
+    })
 
     requestAnimationFrame(draw)
 }
