@@ -11,15 +11,23 @@ const checkForPlayerCollisions = require('./checkCollision').checkForPlayerColli
 let orbs = [];
 let players = [];
 let settings = {
-    defaultOrbs: 500,
+    defaultOrbs: 5000,
     defaultSpeed: 6,
     defaultSize: 6,
     defaultZoom: 1.5,
-    worldWidth: 500,
-    worldHeight: 500
+    worldWidth: 5000,
+    worldHeight: 5000
 };
 
 initGame();
+
+setInterval(() => {
+    if(players.length > 0){
+        io.to('game').emit('tock', {
+          players
+        });
+      }
+}, 33); //30FPS
 
 io.sockets.on('connect', (socket) => {
     let player = {};
@@ -33,8 +41,7 @@ io.sockets.on('connect', (socket) => {
 
         setInterval(() => {
             if(player.tickSent){
-                io.to('game').emit('tock', {
-                  players,
+                socket.emit('tickTock', {
                   playerX: player.playerData.locX,
                   playerY: player.playerData.locY,
                 });
@@ -53,7 +60,7 @@ io.sockets.on('connect', (socket) => {
         xV = player.playerConfig.xVector = data.xVector;
         yV = player.playerConfig.yVector = data.yVector;
 
-        if((player.playerData.locX < 5 && player.playerData.xVector < 0) || (player.playerData.locX > settings.worldWidth) && (xV > 0)) {
+        if ((player.playerData.locX < 5 && player.playerData.xVector < 0) || (player.playerData.locX > settings.worldWidth) && (xV > 0)) {
             player.playerData.locY -= speed * yV;
         } else if ((player.playerData.locY < 5 && yV > 0) || (player.playerData.locY > settings.worldHeight) && (yV < 0)) {
             player.playerData.locX += speed * xV;
@@ -61,8 +68,46 @@ io.sockets.on('connect', (socket) => {
             player.playerData.locX += speed * xV;
             player.playerData.locY -= speed * yV;
         }
+
+        let capturedOrb = checkForOrbCollisions(player.playerData, player.playerConfig, orbs, settings);
+        capturedOrb.then((data) => {
+            const orbData = {
+                orbIndex: data,
+                newOrb: orbs[data]
+            }
+            io.sockets.emit('updateLeaderBoard', getLeaderBoard())
+            io.sockets.emit('updateCurrentPlayerScore', getCurrentPlayerScore(player.playerData.score))
+            io.sockets.emit('orbSwitch', orbData)
+        }).catch(() => {
+
+        })
+
+        let playerDeath = checkForPlayerCollisions(player.playerData, player.playerConfig, players, player.socketId);
+        playerDeath.then((data) => {
+            io.sockets.emit('updateLeaderBoard', getLeaderBoard())
+            document.querySelector('.player-score').innerHTML += `0`
+        }).catch(() => {
+            
+        });
     });
 });
+
+function getLeaderBoard() {
+    players.sort((a,b) => {
+        return b.score - a.score;
+    })
+    let leaderBoard = players.map((currentPlayer) => {
+        return {
+            name: currentPlayer.name,
+            score: currentPlayer.score
+        }
+    })
+    return leaderBoard;
+}
+
+function getCurrentPlayerScore(scoreValue){
+    return scoreValue
+}
 
 function initGame() {
     for(let i = 0; i < settings.defaultOrbs; i++) {

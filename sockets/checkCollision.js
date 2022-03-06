@@ -5,8 +5,7 @@ function checkForOrbCollisions(pData, pConfig, orbs, settings){
     return new Promise((resolve, reject)=>{
         // ORB COLLISIONS
         orbs.forEach((orb,i)=>{
-            // console.log("CHECK FOR COLLISIONS")
-        // AABB Test(square)  - Axis-aligned bounding boxes
+            // AABB Test(square)  - Axis-aligned bounding boxes
             if(pData.locX + pData.radius + orb.radius > orb.locX 
                 && pData.locX < orb.locX + pData.radius + orb.radius
                 && pData.locY + pData.radius + orb.radius > orb.locY 
@@ -44,12 +43,11 @@ function checkForOrbCollisions(pData, pConfig, orbs, settings){
     });
 }
         
-function checkForPlayerCollisions(pData,pConfig,players,playerId){
+function checkForPlayerCollisions(pData, pConfig, players, playerId){
     return new Promise((resolve, reject)=>{
         //PLAYER COLLISIONS	
         players.forEach((curPlayer,i)=>{
             if(curPlayer.uid != playerId){
-                // console.log(curPlayer.uid,pData.uid)
                 let pLocx = curPlayer.locX
                 let pLocy = curPlayer.locY
                 let pR = curPlayer.radius
