@@ -7,13 +7,15 @@ function draw() {
     const camY = -player.locY + canvas.height / 2
     context.translate(camX, camY);
 
+    players.forEach((p) => {
         context.beginPath()
-        context.fillStyle = 'rgb(255,230,230)'
-        context.arc(player.locX,player.locY,10,0,Math.PI*2)
+        context.fillStyle = p.colour
+        context.arc(p.locX,p.locY,10,0,Math.PI*2)
         context.fill()
         context.lineWidth = 3;
         context.strokeStyle = 'rgb(0,255,0)'
-        context.stroke() 
+        context.stroke()
+    });
 
     orbs.forEach((orb) => {
         context.beginPath();
