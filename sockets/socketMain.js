@@ -85,11 +85,23 @@ io.sockets.on('connect', (socket) => {
         let playerDeath = checkForPlayerCollisions(player.playerData, player.playerConfig, players, player.socketId);
         playerDeath.then((data) => {
             io.sockets.emit('updateLeaderBoard', getLeaderBoard())
+            io.sockets.emit('playerDeath', data);
             document.querySelector('.player-score').innerHTML += `0`
         }).catch(() => {
             
         });
     });
+
+    socket.on('disconnect', (data) => {
+        if(player.playerData) {
+            players.forEach((currentPlayer, i) => {
+                if(currentPlayer.uid == player.playerData.uid) {
+                    players.splice(i, 1);
+                    io.sockets.emit('updateLeaderBoard', getLeaderBoard());
+                }
+            });
+        }
+    })
 });
 
 function getLeaderBoard() {
